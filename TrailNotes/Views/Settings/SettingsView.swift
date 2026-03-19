@@ -17,6 +17,7 @@ struct SettingsView: View {
                     mapSection
                     unitsSection
                     dataSection
+                    legalSection
                     aboutSection
                 }
                 .padding(.top, 56)
@@ -112,6 +113,22 @@ struct SettingsView: View {
                     }
                     .foregroundColor(AppTheme.destructive)
                 }
+            }
+        }
+    }
+
+    private var legalSection: some View {
+        settingsCard(title: "Legal") {
+            Link(destination: URL(string: "https://www.termsfeed.com/live/17dfa3f3-dc8f-4732-9c8f-2bf87f1cf7c7")!) {
+                HStack {
+                    Label("Privacy Policy", systemImage: "hand.raised.fill")
+                        .font(.system(size: 15))
+                    Spacer()
+                    Image(systemName: "arrow.up.right")
+                        .font(.system(size: 12))
+                        .foregroundColor(AppTheme.secondaryText)
+                }
+                .foregroundColor(.primary)
             }
         }
     }

@@ -1,11 +1,13 @@
 import SwiftUI
 import MapKit
+import Combine
 
 struct MapPickerView: View {
     @Binding var latitude: Double
     @Binding var longitude: Double
     var onDone: () -> Void
 
+    @StateObject private var locationManager = LocationManager.shared
     @State private var cameraPosition: MapCameraPosition
     @State private var pinCoordinate: CLLocationCoordinate2D
 
@@ -58,8 +60,20 @@ struct MapPickerView: View {
 
                 VStack {
                     Spacer()
-                    HStack {
-                        Spacer()
+
+                    HStack(spacing: 12) {
+                        Button {
+                            useCurrentLocation()
+                        } label: {
+                            Image(systemName: "location.fill")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(AppTheme.accent)
+                                .frame(width: 44, height: 44)
+                                .background(AppTheme.cardBackground)
+                                .clipShape(Circle())
+                                .shadow(color: AppTheme.cardShadow, radius: 4)
+                        }
+
                         Button(action: onDone) {
                             Text("Confirm")
                                 .font(.system(size: 15, weight: .semibold))
@@ -70,7 +84,6 @@ struct MapPickerView: View {
                                 .cornerRadius(AppTheme.cornerRadius)
                                 .shadow(color: AppTheme.cardShadow, radius: 4)
                         }
-                        Spacer()
                     }
                     .padding(.bottom, 24)
                 }
@@ -89,5 +102,30 @@ struct MapPickerView: View {
             .background(AppTheme.cardBackground)
         }
         .background(AppTheme.background)
+        .onReceive(locationManager.$currentLocation) { location in
+            guard let location = location else { return }
+            if latitude == 0 && longitude == 0 {
+                moveToCoordinate(location)
+            }
+        }
+    }
+
+    private func useCurrentLocation() {
+        locationManager.requestLocation()
+        if let location = locationManager.currentLocation {
+            moveToCoordinate(location)
+        }
+    }
+
+    private func moveToCoordinate(_ coord: CLLocationCoordinate2D) {
+        withAnimation {
+            pinCoordinate = coord
+            latitude = coord.latitude
+            longitude = coord.longitude
+            cameraPosition = .region(MKCoordinateRegion(
+                center: coord,
+                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+            ))
+        }
     }
 }

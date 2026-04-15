@@ -1,4 +1,28 @@
 workflows:
+  locale-only-workflow:
+    name: PathLog Upload Locale Only
+    instance_type: mac_mini_m2
+    max_build_duration: 30
+    integrations:
+      app_store_connect: TRAILNOTES ASC
+    environment:
+      vars:
+        APP_STORE_APP_ID: "6760856369"
+      xcode: 26.0
+    scripts:
+      - name: Upload localization only
+        script: |
+          gem install fastlane --no-document
+          fastlane ios upload_locale_only
+        working_directory: $CM_BUILD_DIR
+    publishing:
+      email:
+        recipients:
+          - lyashko.denis@gmail.com
+        notify:
+          success: true
+          failure: true
+
   ios-workflow:
     name: PathLog iOS
     instance_type: mac_mini_m2

@@ -2,6 +2,58 @@ opt_out_usage
 default_platform(:ios)
 
 platform :ios do
+  desc "Upload metadata only (no screenshots) to App Store Connect"
+  lane :upload_locale_only do
+    metadata_dir = File.join(ENV["CM_BUILD_DIR"] || Dir.pwd, "marketData", "PathLog Meta 1.0")
+
+    UI.user_error!("Missing metadata directory: #{metadata_dir}") unless Dir.exist?(metadata_dir)
+
+    key_id = ENV["APP_STORE_CONNECT_KEY_IDENTIFIER"]
+    issuer_id = ENV["APP_STORE_CONNECT_ISSUER_ID"]
+    if key_id.to_s.empty? || issuer_id.to_s.empty?
+      UI.user_error!("Missing ASC env vars: APP_STORE_CONNECT_KEY_IDENTIFIER and/or APP_STORE_CONNECT_ISSUER_ID")
+    end
+    key_file = Dir.glob(File.join(ENV["CM_BUILD_DIR"] || Dir.pwd, "keys", "AuthKey_*.p8")).first
+
+    if key_file.nil?
+      require "tmpdir"
+      key_content = ENV["APP_STORE_CONNECT_PRIVATE_KEY"]
+      if key_content.to_s.empty?
+        UI.user_error!("No keys/AuthKey_*.p8 found and APP_STORE_CONNECT_PRIVATE_KEY is missing")
+      end
+
+      normalized_key = key_content.to_s.gsub("\\n", "\n").strip
+      unless normalized_key.include?("-----BEGIN PRIVATE KEY-----") && normalized_key.include?("-----END PRIVATE KEY-----")
+        UI.user_error!("APP_STORE_CONNECT_PRIVATE_KEY is not a valid .p8 key format")
+      end
+
+      key_file = File.join(Dir.tmpdir, "AuthKey_#{key_id}.p8")
+      File.write(key_file, normalized_key)
+    end
+
+    api_key = app_store_connect_api_key(
+      key_id: key_id,
+      issuer_id: issuer_id,
+      key_filepath: key_file,
+      in_house: false
+    )
+
+    deliver(
+      api_key: api_key,
+      app_identifier: "com.trailNotes",
+      metadata_path: metadata_dir,
+      skip_binary_upload: true,
+      skip_app_version_update: true,
+      skip_screenshots: true,
+      skip_metadata: false,
+      force: true,
+      submit_for_review: false,
+      automatic_release: false,
+      precheck_include_in_app_purchases: false,
+      run_precheck_before_submit: false
+    )
+  end
+
   desc "Upload metadata and screenshots to App Store Connect"
   lane :upload_metadata do
     metadata_dir = File.join(ENV["CM_BUILD_DIR"] || Dir.pwd, "marketData", "PathLog Meta 1.0")

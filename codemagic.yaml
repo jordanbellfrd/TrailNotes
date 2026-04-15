@@ -41,6 +41,11 @@ workflows:
             --project "$XCODE_PROJECT" \
             --scheme "$XCODE_SCHEME"
         working_directory: $CM_BUILD_DIR
+       - name: Upload metadata and screenshots
+         script: |
+           gem install fastlane --no-document
+           fastlane upload_metadata
+         working_directory: $CM_BUILD_DIR
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log

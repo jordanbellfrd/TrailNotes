@@ -41,6 +41,15 @@ workflows:
             --project "$XCODE_PROJECT" \
             --scheme "$XCODE_SCHEME"
         working_directory: $CM_BUILD_DIR
+      - name: Upload metadata and screenshots
+        script: |
+          app-store-connect versions localizations publish \
+            --app-id "$APP_STORE_APP_ID" \
+            --localizations "$CM_BUILD_DIR/marketData/PathLog Meta 1.0"
+          app-store-connect screenshots publish \
+            --app-id "$APP_STORE_APP_ID" \
+            --screenshots-path "$CM_BUILD_DIR/marketData/PathLog Meta 1.0"
+        working_directory: $CM_BUILD_DIR
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log

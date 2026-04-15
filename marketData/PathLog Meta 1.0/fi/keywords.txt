@@ -1,0 +1,1 @@
+paikat,seurantalaite,vaellus,polku,päiväkirja,ulkona,kartta,matkustaa,tukki,tutkia,matka,luonto

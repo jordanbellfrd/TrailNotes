@@ -1,0 +1,1 @@
+places,tracker,hiking,trail,journal,outdoor,map,travel,log,explore,trip,nature,camping,viewpoint

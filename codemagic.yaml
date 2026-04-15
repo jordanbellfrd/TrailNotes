@@ -41,14 +41,12 @@ workflows:
             --project "$XCODE_PROJECT" \
             --scheme "$XCODE_SCHEME"
         working_directory: $CM_BUILD_DIR
-      - name: Upload metadata and screenshots
+      - name: Publish to TestFlight with metadata and screenshots
         script: |
-          app-store-connect versions localizations publish \
-            --app-id "$APP_STORE_APP_ID" \
-            --localizations "$CM_BUILD_DIR/marketData/PathLog Meta 1.0"
-          app-store-connect screenshots publish \
-            --app-id "$APP_STORE_APP_ID" \
-            --screenshots-path "$CM_BUILD_DIR/marketData/PathLog Meta 1.0"
+          app-store-connect publish \
+            --path "$(find "$CM_BUILD_DIR/build/ios/ipa" -name "*.ipa")" \
+            --metadata-path "$CM_BUILD_DIR/marketData/PathLog Meta 1.0" \
+            --submit-to-testflight
         working_directory: $CM_BUILD_DIR
     artifacts:
       - build/ios/ipa/*.ipa
@@ -56,10 +54,6 @@ workflows:
       - build/*.xcarchive
       - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
     publishing:
-      app_store_connect:
-        auth: integration
-        submit_to_testflight: true
-        submit_to_app_store: false
       email:
         recipients:
           - lyashko.denis@gmail.com

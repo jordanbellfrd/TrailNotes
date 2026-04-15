@@ -44,11 +44,7 @@ workflows:
       - name: Upload metadata and screenshots
         script: |
           gem install fastlane --no-document
-          for i in $(seq 1 40); do
-            fastlane ios upload_metadata && { echo "All localizations activated successfully"; break; }
-            echo "Attempt $i: locale activated or error, retrying in 3s..."
-            sleep 3
-          done
+          fastlane ios upload_metadata
         working_directory: $CM_BUILD_DIR
     artifacts:
       - build/ios/ipa/*.ipa
